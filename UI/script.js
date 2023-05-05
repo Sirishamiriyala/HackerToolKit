@@ -1,53 +1,146 @@
 $(document).ready(function() {
+  $('input:radio[name="radio"]').change(
+    function(){
+        if ($(this).is(':checked') && $(this).val() == 'Nikto') {
+            // append goes here
+            $('#scantypeId').css('display', 'none');
+            $('#scan-type').val('');
+            $('#ip-address').val('');
+
+        }
+        if ($(this).is(':checked') && $(this).val() == 'nmap') {
+          // append goes here
+          $('#scantypeId').css('display', 'block');
+          $('#scan-type').val('Quick Scan');
+          $('#ip-address').val('');
+      }
+    });
+    var spinner = new Spinner().spin();
+    var loaderContainer = document.querySelector('#loader-container');
+    loaderContainer.appendChild(spinner.el);
   $('#scan-form').submit(function(event) {
     event.preventDefault();
-    console.log("sdfdfsdfdsfdsdfsfsdfsdfsddfs")
     // Get input values
-    var formData = {
-	'ip_address': $('#ip-address').val(),
-	'port_range': $('#port-range').val(),
-	'scan_type': $('#scan-type').val(),
-    }
-
-
-    // send AJAX request to API endpoint
-    // $.ajax({
-    //   type: 'POST',
-    //   url: 'http://localhost:8000/nmap-scan/',
-    //   data: JSON.stringify(formData),
-    //   contentType: 'application/json',
-    //   dataType : 'jsonp',   //you may use jsonp for cross origin request
-    //   crossDomain:true,
-    //   success: function(data) {
-    //     // Display scan results in container element
-    //     alert('###################');
-    //     console.log('Scan-results:', data);
-    //     $('#output-text').html(data);
-    //   },
-    //   error: function(xhr, status, error) {
-    //     alert('Error retrieving scan results.');
-    //   }
-    // });
-
-
-    fetch("http://localhost:8000/nmap-scan/", {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-                })
-                
-                .then(response => response.json())
-                .then(response => {
-
-                  console.log("testdcfdsfdvf"+response)
-                    $("#output-text").val(JSON.stringify(response));
-                
-                 })
-
+    var method_type = "";
+    var type =$("input[name='radio']:checked").val();
+    var url;
+    if(type=="nmap"){
+        let obj = {
+        'ip': $('#ip-address').val(),
+        'scan_type': $('#scan-type').val(),
+          }
+          url="http://127.0.0.1:8000/";
+          method_type = 'POST';
+    $("#output-text").val("");        
+    fetch(url, {
+      method: method_type,
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(obj)
+    } )
+    .then(response => response.json())
+    .then(response => {
+        console.log("response data"+response)
+        $("#output-text").val(JSON.stringify(response));
     
+     })
+     .finally(() => {
+        loaderContainer.removeChild(spinner.el);
+       });
+    }else{
+      createTarget()
+    }
+});
+function createTarget(){
+    let ip_address= $('#ip-address').val(),
+      url='http://127.0.0.1:8000/create-target/'+ip_address+"/";
+      method_type = 'GET';
+      $("#output-text").val("");               
+    fetch(url, {
+    method: method_type,
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+  } )
+  .then(response => response.json())
+  .then(response => {
+    if(response && response.target_id){
+      console.log("create Target response data"+response?.target_id);
+      createTask(ip_address,response.target_id)
+    }
+  })
+  .finally(() => {
+    loaderContainer.removeChild(spinner.el);
+   });
+}
+function createTask(ip_address,target_id){
+      url='http://127.0.0.1:8000/create-task/'+ip_address+'/'+target_id+'/';
+      method_type = 'GET';
+      $("#output-text").val("");               
+fetch(url, {
+  method: method_type,
+  headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+  },
+} )
+.then(response => response.json())
+.then(response => {
+  if(response && response.task_id){
+    console.log("create task response data"+response.task_id);
+    startTask(response.task_id)
+  }
+ })
+ .finally(() => {
+    loaderContainer.removeChild(spinner.el);
+   });
+}
 
-  });
+function startTask(taskid){
+      url='http://127.0.0.1:8000/start-scan/'+taskid+"/";
+      method_type = 'GET';
+      $("#output-text").val("");               
+fetch(url, {
+  method: method_type,
+  headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+  },
+} )
+.then(response => response.json())
+.then(response => {
+  if(response && response.report_id){
+    console.log("start task response data"+response.report_id);
+    getReport(response.report_id)
+  }
+ })
+ .finally(() => {
+    loaderContainer.removeChild(spinner.el);
+   });
+}
+
+function getReport(reportid){
+      url='http://127.0.0.1:8000/get-report/'+reportid+"/";
+      method_type = 'GET';
+      $("#output-text").val("");               
+fetch(url, {
+  method: method_type,
+  headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+  },
+} )
+.then(response => response?.json())
+.then(response => {
+    console.log("get response data"+response)
+    $("#output-text").val(JSON.stringify(response));
+
+ })
+ .finally(() => {
+    loaderContainer.removeChild(spinner.el);
+   });
+}
 });
