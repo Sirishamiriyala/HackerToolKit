@@ -1,102 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-.item1 { grid-area: header; }
-.item2 { grid-area: menu; }
-.item3 { grid-area: main; }
-.item4 { grid-area: right; }
-.item5 { grid-area: footer; }
-
-.grid-container {
-  display: grid;
-  grid-template-areas:
-    'header header header header header header'
-    'menu main main main right right'
-    'menu footer footer footer footer footer';
-  gap: 10px;
-  background-color: #ffffff;
-  padding: 10px;
-}
-
-</style>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="script.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hacker Tool Kit</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
 </head>
 <body>
-
-<h1 style="text-align: center;">Hacker Tool Kit </h1>
-
-<p>Enter the required input parameters to scan the target</p>
-
-<div class="grid-container">
-  <div class="item1">Scanners</div>
-
-  <div class="item2">
+  <div class="container-fluid">
     <div class="row">
-    <label>
-        <input type="radio" checked="checked" name="radio" value="nmap"> Nmap
-        <span class="checkmark"></span>
-      </label>
-    </div>
-    <div class="row">
-      <label>
-        <input type="radio" name="radio" value="openvas"> OpenVAS
-        <span class="checkmark"></span>
-      </label>
+      <h4 class="dashboard">Dashboard</h4>
+      <p class="lead text-center">Scanners</p>
+        <div class="radio-container d-flex justify-content-center mb-4">
+          <div class="form-check me-4">
+            <input class="form-check-input" type="radio" checked name="radio" value="nmap" id="nmap">
+            <label class="form-check-label" for="nmap">Nmap</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="radio" value="Nikto" id="Nikto">
+            <label class="form-check-label" for="Nikto">Openvas</label>
+          </div>
+        </div>
     </div>
   </div>
-  <div class="item3">
-    <div class="row">
+  <div class="container">
+    <h1 class="text-center mb-4">Hacker Tool Kit</h1>
+    <!--p class="lead text-center">Enter the required input parameters to scan the target</p>-->
+    <div class="item3">
+      <div class="form-container">
         <form id="scan-form">
-            <input type="text" id="ip-address" placeholder="IP address">
-            <input type="text" id="port-range" placeholder="Port range">
+          <div class="form-group">
+            <label for="ip-address">IP address</label>
+            <input type="text" id="ip-address" placeholder="Enter IP address">
+          </div>
+          <div class="form-group">
+          <div id="scantypeId">
+            <label for="scan-type">Scan type</label>
             <select name="scan_type" id="scan-type">
-                <!-- <option value="">Regular scan</option>
-                <option value="T4 -F">Quick Scan</option>
-                <option value="-sV -T4 -O -F --version-light">Quick scan plus</option>
-                <option value="sS">SYN Stealth Scan</option>
-                <option value="-A -v">Intense Scan</option>
-                <option value="-sS -sU -T4 -A -v">Intense with UDP Scan</option>
-                <option value="-p 1-65535 -T4 -A -v">Intense scan, all TCP ports</option>
-                <option value="-T4 -A -v -Pn">Intense scan, no ping</option>
-                <option value="sn">Ping Scan</option>
-                <option value="-sn --traceroute">Quick traceroute</option>
-                <option value="-sS -sU -T4 -A -v -PE -PS80,443 -PA3389 -PP -PU40125 -PY">Slow comprehensive scan</option>
-                <option value="T4 -F">Quick Scan</option> -->
-                <option value="Quick Scan">Quick Scan</option>
-                <option value="Full Scan">Full Scan</option>
-                <option value="Stealth Scan">Stealth Scan</option>
-                <option value="Intense Scan">Intense Scan</option>
-                <option value="Intense Scan with UDP">Intense Scan with UDP</option>
-                <option value="Top-Ports">Top Ports</option>
-                <option value="Version">Version</option>
-                <option value="OS-Detection">OS Detection</option>
-                <option value="ping-scan">Ping Scan</option>
-
+              <option value="Quick Scan">Quick Scan</option>
+              <option value="Full Scan">Full Scan</option>
+              <option value="Stealth Scan">Stealth Scan</option>
+              <option value="Intense Scan">Intense Scan</option>
+              <option value="Intense Scan with UDP">Intense Scan with UDP</option>
+              <option value="Top-Ports">Top Ports</option>
+              <option value="Version">Version</option>
+              <option value="OS-Detection">OS Detection</option>
+              <option value="ping-scan">Ping Scan</option>
             </select>
-            <input type="submit" id="submit-button" value="Submit">
-            <!-- <button id="submit-button">Scan</button> -->
+          </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" id="submit-button">Scan</button>
+          </div>
         </form>
+      </div>
     </div>
-  </div>
-
-  <!-- <div class="item4">Right</div> -->
-
-  <div class="item5">
     
-    <div class="col-md-1">
-        <label for="output-text">Scan Result:</label>
+    <div id="loader-container"></div>
+    <div class="result mt-5">
+      <div class="label">
+        <label class="form-label" for="output-text">Result:</label>
+      </div>
+      <div class="textarea">
+        <textarea class="form-control" id="output-text" rows="10" cols="60"></textarea>
+      </div>
     </div>
-
-    <div class="col-md-1">
-	    <textarea id="output-text" rows="50" cols="60"></textarea>
-    </div>
-  </div>
 </div>
-
 </body>
 </html>
-
-
